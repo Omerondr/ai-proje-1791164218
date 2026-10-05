@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>Cyberpunk Asteroid Blaster</title>
+    <style>
+        body { margin: 0; background: #0d1117; color: #00f2fe; font-family: 'Courier New', monospace; overflow: hidden; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        canvas { background: #000; box-shadow: 0 0 30px rgba(0, 242, 254, 0.2); cursor: crosshair; }
+        #ui { position: absolute; pointer-events: none; width: 1280px; height: 800px; display: flex; flex-direction: column; justify-content: space-between; padding: 20px; box-sizing: border-box; }
+        .glass { background: rgba(13, 17, 23, 0.7); backdrop-filter: blur(5px); border: 1px solid rgba(0, 242, 254, 0.3); padding: 15px; border-radius: 10px; pointer-events: all; }
+        button { cursor: pointer; background: #0d1117; color: #00ff87; border: 2px solid #00ff87; padding: 10px 20px; font-weight: bold; }
+        button:hover { background: #00ff87; color: #000; }
+    </style>
+</head>
+<body>
+    <div id="ui">
+        <div style="display: flex; justify-content: space-between;">
+            <div class="glass">SCORE: <span id="score">0</span></div>
+            <div class="glass">SHIELD: <span id="shield">100</span>%</div>
+        </div>
+        <div id="menu" style="text-align: center; pointer-events: all;">
+            <h1 style="color: #fe0979; text-shadow: 0 0 10px #fe0979;">CYBERPUNK BLASTER</h1>
+            <button onclick="initGame()">OYUNU BAŞLAT</button>
+        </div>
+    </div>
+    <canvas id="gameCanvas" width="1280" height="800"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas'), ctx = canvas.getContext('2d');
+        let gameRunning = false, score = 0, shield = 100, particles = [], asteroids = [], bullets = [];
+        const ship = { x: 640, y: 700, w: 40, h: 40 };
+
+        function initGame() {
+            document.getElementById('menu').style.display = 'none';
+            gameRunning = true;
+            requestAnimationFrame(loop);
+        }
+
+        function spawnAsteroid() {
+            if(Math.random() < 0.02) asteroids.push({ x: Math.random()*1280, y: -50, size: 30 + Math.random()*40, vy: 1 + Math.random()*3 });
+        }
+
+        function loop() {
+            if(!gameRunning) return;
+            ctx.fillStyle = 'rgba(0,0,0,0.2)'; ctx.fillRect(0,0,1280,800);
+            
+            // Draw Ship
+            ctx.strokeStyle = '#00f2fe'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(ship.x, ship.y-20); ctx.lineTo(ship.x-20, ship.y+20); ctx.lineTo(ship.x+20, ship.y+20); ctx.closePath(); ctx.stroke();
+
+            // Asteroids
+            asteroids.forEach((a, i) => {
+                a.y += a.vy;
+                ctx.strokeStyle = '#fe0979';
+                ctx.strokeRect(a.x, a.y, a.size, a.size);
+                if(a.y > 800) asteroids.splice(i, 1);
+            });
+
+            spawnAsteroid();
+            requestAnimationFrame(loop);
+        }
+        window.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowLeft') ship.x -= 20;
+            if(e.key === 'ArrowRight') ship.x += 20;
+        });
+    </script>
+</body>
+</html>
